@@ -82,6 +82,75 @@ async function run() {
     // WRITE YOUR CODE HERE
     // ==============================================================
 
+    const productsCollection = client.db("pocket-tech").collection("products");
+
+    // get all products
+    app.get("/api/v1/products", async (req, res) => {
+      try {
+        const { brand, minRating, maxPrice } = req.query;
+        const filter = {};
+
+        if (brand) {
+          filter.brand = brand;
+        }
+
+        if (minRating) {
+          filter.ratings = { $gte: parseFloat(minRating) };
+        }
+
+        if (maxPrice) {
+          filter.price = { $lte: parseFloat(maxPrice) };
+        }
+
+        const result = await productsCollection.find(filter).toArray();
+        res.send(result);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    });
+
+    app.get("/api/v1/products/:productid", async (req, res) => {
+      const id = req.params.productid;
+      try {
+        if (!mongodb.ObjectId.isValid(id)) {
+          return res.status(400).json({ message: "Invalid product ID format" });
+        }
+
+        const query = { _id: new mongodb.ObjectId(id) };
+        const result = await productsCollection.findOne(query);
+
+        if (!result) {
+          return res.status(404).json({ message: "Product not found" });
+        }
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    });
+
+    app.get("/api/v1/flashsale", async (req, res) => {
+      const result = await productsCollection
+        .find({ flashSale: true, discount: { $exists: true, $ne: null } })
+        .toArray();
+      res.send(result);
+    });
+
+    app.get("/api/v1/topRatedProducts", async (req, res) => {
+      try {
+        const topRatedProducts = await productsCollection
+          .find()
+          .sort({ ratings: -1 })
+          .toArray();
+        res.json(topRatedProducts);
+      } catch (error) {
+        console.error("Error fetching top-rated products:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    });
+
     // Start the server
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
