@@ -87,22 +87,7 @@ async function run() {
     // get all products
     app.get("/api/v1/products", async (req, res) => {
       try {
-        const { brand, minRating, maxPrice } = req.query;
-        const filter = {};
-
-        if (brand) {
-          filter.brand = brand;
-        }
-
-        if (minRating) {
-          filter.ratings = { $gte: parseFloat(minRating) };
-        }
-
-        if (maxPrice) {
-          filter.price = { $lte: parseFloat(maxPrice) };
-        }
-
-        const result = await productsCollection.find(filter).toArray();
+        const result = await productsCollection.find({}).toArray();
         res.send(result);
       } catch (error) {
         console.error("Error fetching products:", error);
