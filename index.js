@@ -125,6 +125,7 @@ async function run() {
       res.send(result);
     });
 
+    // top rated product//////
     app.get("/api/v1/topRatedProducts", async (req, res) => {
       try {
         const topRatedProducts = await productsCollection
