@@ -95,6 +95,7 @@ async function run() {
       }
     });
 
+    // get single product /////
     app.get("/api/v1/products/:productid", async (req, res) => {
       const id = req.params.productid;
       try {
@@ -116,6 +117,7 @@ async function run() {
       }
     });
 
+    // get all flashsale
     app.get("/api/v1/flashsale", async (req, res) => {
       const result = await productsCollection
         .find({ flashSale: true, discount: { $exists: true, $ne: null } })
